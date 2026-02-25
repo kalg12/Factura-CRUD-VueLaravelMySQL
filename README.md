@@ -97,16 +97,37 @@ Principios aplicados:
 
 ## 5. Acceso
 
-- Backend API:
-  http://localhost:8000
+- **Backend API:** http://localhost:8000  
+- **Frontend:** http://localhost:5173 (tras montar el proyecto Vue; ver abajo)
 
-- Frontend:
-  http://localhost:5173
+### Base de datos MySQL
 
-- Base de datos MySQL:
-  - Host: localhost
-  - Puerto: 3306
-  - Base de datos: factura_crud
-  - Usuario: factura_user
-  - Contraseña: factura_pass
-  - Root password: root
+- Host: localhost  
+- Puerto: 3306  
+- Base de datos: factura_crud  
+- Usuario: factura_user  
+- Contraseña: factura_pass  
+- Root password: root  
+
+### Login (API y frontend)
+
+La API usa **Laravel Sanctum** (token Bearer). Usuario de prueba creado por el seeder:
+
+- **Email:** test@example.com  
+- **Contraseña:** password  
+
+Endpoints de auth: `POST /api/login`, `POST /api/register`, `POST /api/logout`, `GET /api/user`. El resto de rutas requieren cabecera `Authorization: Bearer <token>`.
+
+---
+
+## 6. Montar el frontend (Vue 3 + Login)
+
+Pasos detallados para crear el proyecto Vue, configurar axios, Pinia, router y la pantalla de login están en **[FRONTEND_SETUP.md](./FRONTEND_SETUP.md)**.
+
+Resumen rápido:
+
+1. En la raíz: `npm create vue@latest frontend` → elegir Vue Router y Pinia.
+2. `cd frontend` → `npm install` → `npm install axios`.
+3. Crear `frontend/.env` con `VITE_API_URL=http://localhost:8000/api`.
+4. Crear cliente axios (con interceptor del token), store de auth (Pinia), rutas con protección y vista de login según la guía.
+5. Probar con test@example.com / password.
