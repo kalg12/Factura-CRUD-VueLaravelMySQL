@@ -23,7 +23,10 @@ async function logout() {
         <router-link :to="{ name: 'invoices' }">Facturas</router-link>
       </nav>
       <div class="user">
-        <span class="user-name">{{ auth.user?.name ?? auth.user?.email }}</span>
+        <span class="user-name">
+          <span class="user-label">Usuario</span>
+          {{ auth.user?.name ?? auth.user?.email }}
+        </span>
         <button type="button" class="btn-logout" @click="logout">Cerrar sesión</button>
       </div>
     </header>
@@ -90,28 +93,40 @@ async function logout() {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
 }
 
 .user-name {
-  font-size: 0.875rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #eff6ff;
+  color: #1d4ed8;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+}
+
+.user-label {
+  font-weight: 500;
   color: #64748b;
 }
 
 .btn-logout {
-  padding: 0.4rem 0.75rem;
-  font-size: 0.85rem;
-  color: #64748b;
-  background: transparent;
-  border: 1px solid #e2e8f0;
-  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #fff;
+  background: #dc2626;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .btn-logout:hover {
-  background: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background: #b91c1c;
 }
 
 .main {
