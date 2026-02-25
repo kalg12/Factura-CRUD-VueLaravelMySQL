@@ -1,7 +1,10 @@
 FROM php:8.4-cli
 
-# Extensiones para Laravel + MySQL
-RUN docker-php-ext-install pdo pdo_mysql
+# Dependencias para zip
+RUN apt-get update && apt-get install -y libzip-dev unzip && rm -rf /var/lib/apt/lists/*
+
+# Extensiones para Laravel + MySQL + Composer (zip)
+RUN docker-php-ext-install pdo pdo_mysql zip
 
 # Instalar Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
