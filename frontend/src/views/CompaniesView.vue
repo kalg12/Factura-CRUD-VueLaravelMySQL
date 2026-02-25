@@ -154,7 +154,7 @@ onMounted(() => loadCompanies())
               <td>{{ c.person_type === 'FISICA' ? 'Persona física' : 'Persona moral' }}</td>
               <td>{{ c.email ?? '—' }}</td>
               <td class="actions">
-                <button type="button" class="btn btn-sm" @click="openEdit(c)">Editar</button>
+                <button type="button" class="btn btn-sm btn-edit" @click="openEdit(c)">Editar</button>
                 <button type="button" class="btn btn-sm btn-danger" @click="confirmDelete(c)">
                   Eliminar
                 </button>
@@ -254,6 +254,7 @@ onMounted(() => loadCompanies())
 <style scoped>
 .companies-page {
   max-width: 1000px;
+  margin: 0 auto;
 }
 
 .page-header {
@@ -380,10 +381,25 @@ onMounted(() => loadCompanies())
   background: #1d4ed8;
 }
 
+.btn-edit {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.btn-edit:hover:not(:disabled) {
+  background: #2563eb;
+  border-color: #2563eb;
+  color: #fff;
+}
+.btn-danger {
+  background: #ef4444;
+  color: #fff;
+  border-color: #ef4444;
+}
 .btn-danger:hover:not(:disabled) {
-  background: #fef2f2;
-  color: #b91c1c;
-  border-color: #fecaca;
+  background: #dc2626;
+  border-color: #dc2626;
+  color: #fff;
 }
 
 /* Form overlay */
