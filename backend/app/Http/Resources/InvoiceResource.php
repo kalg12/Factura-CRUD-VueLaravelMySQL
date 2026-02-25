@@ -1,4 +1,3 @@
-use App\Http\Resources\InvoiceItemResource;
 <?php
 
 namespace App\Http\Resources;
@@ -19,6 +18,8 @@ class InvoiceResource extends JsonResource
             'id' => $this->id,
             'company_id' => $this->company_id,
             'client_id' => $this->client_id,
+            'company' => $this->whenLoaded('company', fn () => new CompanyResource($this->company)),
+            'client' => $this->whenLoaded('client', fn () => new ClientResource($this->client)),
             'date' => $this->date?->toDateString(),
             'status' => $this->status,
             'subtotal' => $this->subtotal,

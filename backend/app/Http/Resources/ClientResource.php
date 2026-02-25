@@ -17,6 +17,7 @@ class ClientResource extends JsonResource
         return [
             'id' => $this->id,
             'company_id' => $this->company_id,
+            'company' => $this->whenLoaded('company', fn () => new CompanyResource($this->company)),
             'name' => $this->name,
             'rfc' => $this->rfc,
             'person_type' => $this->person_type,
