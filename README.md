@@ -1,133 +1,182 @@
 # Sistema de Facturación (Billing CRUD)
 
-Proyecto full stack - Facturación CRUD
-Dev: Kevin Luciano
-Permite la gestión de empresas, clientes y facturas con partidas dinámicas, incluyendo exportación en PDF.
+Proyecto full stack para gestión de empresas, clientes y facturas con exportación a PDF y CSV. Incluye login con Laravel Sanctum y formularios dinámicos según tipo de persona (física/moral).
+
+**Desarrollador:** Kevin Luciano
 
 ---
 
-## 1. Descripción General
+## 1. Descripción general
 
-Este sistema implementa un CRUD completo para facturación utilizando:
+| Capa        | Tecnología                          |
+|------------|--------------------------------------|
+| Frontend   | Vue 3, Vite, TypeScript, Pinia, Vue Router, Axios |
+| Backend    | Laravel 12, API REST                 |
+| Base de datos | MySQL 8                             |
+| Infra      | Docker + Docker Compose              |
 
-- Frontend: Vue 3 + Vite + Pinia
-- Backend: Laravel (API REST)
-- Base de datos: MySQL
-- Contenerización: Docker + Docker Compose
-- Exportación: PDF
+**Objetivos del proyecto:**
 
-El objetivo es demostrar:
-
-- Arquitectura limpia
-- Buenas prácticas en Laravel
-- Manejo correcto de estados HTTP
-- Validaciones
-- Dockerización completa del entorno
-
----
-
-## 2. Características Principales
-
-### 2.1 Empresas (Emisores)
-
-- Crear, listar, actualizar y eliminar empresas
-- Soporte para:
-  - Persona Física
-  - Persona Moral
-- Validación de RFC
-- Relación con facturas
-
-### 2.2 Clientes (Receptores)
-
-- CRUD completo
-- Cambio dinámico de formulario según:
-  - Persona Física
-  - Persona Moral
-- Validación condicional de campos
-- Relación con facturas
-
-### 2.3 Facturas
-
-- Crear facturas con múltiples partidas
-- Cálculo automático de:
-  - Subtotal
-  - Impuestos
-  - Total
-- Estados disponibles:
-  - DRAFT
-  - ISSUED
-  - PAID
-  - CANCELED
-- Filtros por:
-  - Empresa
-  - Cliente
-  - Estado
-  - Rango de fechas
-- Eliminación lógica (opcional si se usa SoftDeletes)
-
-### 2.4 Exportaciones
-
-- Exportar factura individual en PDF
-- Exportar múltiples facturas en PDF
+- CRUD completo de empresas, clientes y facturas (con partidas).
+- Autenticación por token (Bearer) con Sanctum.
+- Formularios dinámicos según persona física / persona moral.
+- Exportación de facturas seleccionadas en PDF y CSV.
+- Buenas prácticas: validación (FormRequest), recursos API (Resource), manejo de estados y errores en el frontend.
 
 ---
 
-## 3. Arquitectura del Proyecto
+## 2. Características
 
-### Backend (Laravel)
+### 2.1 Autenticación
 
-app/
-├── Http/
-│ ├── Controllers/Api/
-│ ├── Requests/
-│ ├── Resources/
-├── Models/
-├── Services/
-│ └── Invoice/
+- **Login** y **registro** de usuario.
+- Rutas protegidas: solo con token válido se accede a empresas, clientes y facturas.
+- Usuario de prueba (creado por seeder): `test@example.com` / `password`.
 
-### Frontend (Vue 3)
+### 2.2 Empresas
 
-Principios aplicados:
+- Listado paginado, alta, edición y eliminación.
+- Tipo de persona: **Persona física** o **Persona moral** (etiqueta dinámica: “Nombre completo” / “Razón social”).
+- Campos: nombre, RFC (único), email, teléfono, domicilio.
 
-- Manejo de estado con Pinia
-- Manejo centralizado de llamadas API
-- Formularios dinámicos según tipo de cliente/empresa
+### 2.3 Clientes
 
-### Base de Datos: MySQL
+- CRUD completo con paginación.
+- Tipo de persona: física o moral; formulario con misma lógica de etiquetas.
+- **Empresa opcional** (relación con empresas).
+- Campos: nombre, RFC, email, teléfono, domicilio.
 
-## 5. Acceso
+### 2.4 Facturas
 
-- **Backend API:** http://localhost:8000  
-- **Frontend:** http://localhost:5173 (tras montar el proyecto Vue; ver abajo)
+- Listado paginado con empresa, cliente, fecha, total y estado.
+- **Selección múltiple** (checkboxes) para exportar.
+- Alta y edición con:
+  - Empresa y cliente (obligatorios).
+  - Fecha, estado (DRAFT, SENT, PAID, CANCELLED), moneda.
+  - **Partidas dinámicas**: descripción, cantidad, precio unitario; subtotal, IVA (16 %) y total calculados en tiempo real.
+- Eliminación con confirmación.
+
+### 2.5 Exportaciones
+
+- **PDF**: una o varias facturas seleccionadas (varias en un mismo PDF multipágina).
+- **CSV**: facturas seleccionadas; columnas: ID, fecha, estado, empresa, cliente, subtotal, IVA, total, moneda.
+
+---
+
+## 3. Estructura del proyecto
+
+```
+factura-crud/
+├── backend/                 # Laravel (API)
+│   ├── app/
+│   │   ├── Http/
+│   │   │   ├── Controllers/Api/   # Auth, Company, Client, Invoice
+│   │   │   ├── Requests/          # Store/Update FormRequests
+│   │   │   └── Resources/         # Company, Client, Invoice, InvoiceItem
+│   │   └── Models/
+│   ├── database/migrations/
+│   ├── database/seeders/          # FacturaSeeder (empresas, clientes, facturas)
+│   ├── resources/views/invoices/  # Blade para PDF
+│   ├── routes/api.php
+│   ├── .env
+│   └── Dockerfile
+├── frontend/                # Vue 3 SPA
+│   ├── src/
+│   │   ├── api/            # client (axios), companies, clients, invoices
+│   │   ├── layouts/        # MainLayout (menú)
+│   │   ├── router/         # Rutas + guard auth
+│   │   ├── stores/         # auth (Pinia)
+│   │   ├── types/          # TypeScript (User, Company, Client, Invoice, etc.)
+│   │   └── views/          # Login, Home, Companies, Clients, Invoices
+│   ├── .env                # VITE_API_URL
+│   └── package.json
+├── docker-compose.yml      # app (Laravel), db (MySQL)
+├── README.md
+└── FRONTEND_SETUP.md       # Guía detallada frontend + login
+```
+
+---
+
+## 4. Requisitos
+
+- **Docker** y **Docker Compose** (para backend + MySQL).
+- **Node.js** 18+ y **npm** (para el frontend).
+
+---
+
+## 5. Cómo ejecutar
+
+### 5.1 Backend (API + MySQL)
+
+En la raíz del proyecto:
+
+```bash
+docker compose up -d
+```
+
+- API: **http://localhost:8000**
+- MySQL: puerto **3306** (credenciales abajo).
+
+Si es la primera vez o cambiaste migraciones/seeders:
+
+```bash
+docker exec factura_app php artisan migrate --force
+docker exec factura_app php artisan db:seed --force
+```
+
+### 5.2 Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+- App: **http://localhost:5173**
+
+Crea o revisa `frontend/.env`:
+
+```env
+VITE_API_URL=http://localhost:8000/api
+```
+
+### 5.3 Probar el flujo
+
+1. Abre http://localhost:5173.
+2. Inicia sesión con **test@example.com** / **password**.
+3. Usa el menú: **Empresas**, **Clientes**, **Facturas**.
+4. En Facturas, selecciona filas y usa **Descargar PDF** o **Descargar CSV**.
+
+---
+
+## 6. Acceso a servicios
+
+| Servicio   | URL / datos |
+|-----------|-------------|
+| Backend API | http://localhost:8000 |
+| Frontend    | http://localhost:5173 |
+| MySQL       | Host: `localhost`, Puerto: `3306` |
 
 ### Base de datos MySQL
 
-- Host: localhost  
-- Puerto: 3306  
-- Base de datos: factura_crud  
-- Usuario: factura_user  
-- Contraseña: factura_pass  
-- Root password: root  
+| Parámetro   | Valor          |
+|------------|----------------|
+| Base de datos | `factura_crud` |
+| Usuario    | `factura_user` |
+| Contraseña | `factura_pass` |
+| Root       | `root`         |
 
-### Login (API y frontend)
+### API (Laravel Sanctum)
 
-La API usa **Laravel Sanctum** (token Bearer). Usuario de prueba creado por el seeder:
+- **Login:** `POST /api/login` — body: `{ "email", "password" }` → devuelve `token` y `user`.
+- **Registro:** `POST /api/register` — body: `{ "name", "email", "password", "password_confirmation" }`.
+- **Usuario actual:** `GET /api/user` — cabecera: `Authorization: Bearer <token>`.
+- **Logout:** `POST /api/logout` — cabecera: `Authorization: Bearer <token>`.
 
-- **Email:** test@example.com  
-- **Contraseña:** password  
-
-Endpoints de auth: `POST /api/login`, `POST /api/register`, `POST /api/logout`, `GET /api/user`. El resto de rutas requieren cabecera `Authorization: Bearer <token>`.
+El resto de endpoints (companies, clients, invoices, export) requieren la cabecera `Authorization: Bearer <token>`.
 
 ---
 
-## 6. Montar el frontend (Vue 3 + Login)
+## 7. Documentación adicional
 
-Pasos detallados para crear el proyecto Vue, configurar axios, Pinia, router y la pantalla de login están en **[FRONTEND_SETUP.md](./FRONTEND_SETUP.md)**.
-
-Resumen rápido:
-
-1. En la raíz: `npm create vue@latest frontend` → elegir Vue Router y Pinia.
-2. `cd frontend` → `npm install` → `npm install axios`.
-3. Crear `frontend/.env` con `VITE_API_URL=http://localhost:8000/api`.
-4. Crear cliente axios (con interceptor del token), store de auth (Pinia), rutas con protección y vista de login según la guía.
-5. Probar con test@example.com / password.
+- **[FRONTEND_SETUP.md](./FRONTEND_SETUP.md)** — Pasos para montar el proyecto Vue desde cero (axios, Pinia, router, login) y configuración de CORS/entorno.
